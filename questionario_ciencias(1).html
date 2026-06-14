@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Questionário — Metodologias de Ensino: Ciências da Natureza</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #0f1117;
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 80px;
+  }
+
+  .bg-glow {
+    position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 700px 500px at 20% 10%, rgba(108,99,255,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 500px 400px at 80% 80%, rgba(139,92,246,0.09) 0%, transparent 70%);
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(108,99,255,0.15);
+    border: 1px solid rgba(108,99,255,0.35);
+    border-radius: 999px;
+    padding: 6px 18px;
+    font-size: 13px; font-weight: 600; color: #a78bfa;
+    margin-bottom: 16px;
+  }
+  .title {
+    font-size: clamp(24px, 5vw, 40px);
+    font-weight: 800;
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 40%, #6c63ff 80%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2; margin-bottom: 10px;
+  }
+  .subtitle { font-size: 15px; color: #64748b; }
+
+  /* PROGRESS */
+  .progress-box {
+    background: #1e2133;
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    border: 1px solid rgba(108,99,255,0.15);
+  }
+  .progress-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .progress-label { font-size: 14px; color: #94a3b8; font-weight: 500; }
+  .progress-pct { font-size: 14px; font-weight: 700; color: #a78bfa; }
+  .progress-track {
+    height: 8px; background: #2d3354; border-radius: 999px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #6c63ff, #a78bfa);
+    border-radius: 999px;
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  /* STATUS PILLS */
+  .pills {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+  .pill {
+    display: flex; align-items: center; gap: 6px;
+    padding: 7px 16px; border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+  }
+  .pill-correct { background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; }
+  .pill-wrong   { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.3);  color: #f87171; }
+  .pill-rest    { background: rgba(100,116,139,0.12); border: 1px solid rgba(100,116,139,0.3); color: #94a3b8; }
+
+  /* FILTERS */
+  .filters {
+    display: flex; gap: 8px; flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .filter-btn {
+    padding: 8px 18px; border-radius: 999px; border: 1px solid rgba(108,99,255,0.25);
+    background: transparent; color: #94a3b8; font-family: 'Inter', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+  }
+  .filter-btn:hover { background: rgba(108,99,255,0.1); color: #c4b5fd; }
+  .filter-btn.active {
+    background: linear-gradient(135deg, #6c63ff, #7c3aed);
+    color: #fff; border-color: transparent;
+  }
+
+  /* CARD */
+  .card {
+    background: #1e2133;
+    border-radius: 20px;
+    border: 1px solid rgba(108,99,255,0.12);
+    padding: 28px;
+    margin-bottom: 20px;
+    transition: border-color 0.3s;
+    position: relative; overflow: hidden;
+  }
+  .card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, #6c63ff, #a78bfa);
+    border-radius: 20px 20px 0 0;
+  }
+  .card.answered-correct { border-color: rgba(34,197,94,0.4); }
+  .card.answered-correct::before { background: linear-gradient(90deg,#22c55e,#4ade80); }
+  .card.answered-wrong   { border-color: rgba(239,68,68,0.4); }
+  .card.answered-wrong::before { background: linear-gradient(90deg,#ef4444,#f87171); }
+
+  .card-head {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 10px;
+  }
+  .q-badge {
+    background: linear-gradient(135deg,#6c63ff,#7c3aed);
+    color: #fff; font-size: 12px; font-weight: 700;
+    padding: 4px 12px; border-radius: 999px;
+    white-space: nowrap;
+  }
+  .q-topic {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: #64748b;
+  }
+
+  .q-ctx {
+    background: rgba(108,99,255,0.08);
+    border-left: 3px solid #6c63ff;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    font-size: 13px; color: #94a3b8; line-height: 1.7;
+    margin-bottom: 14px;
+  }
+
+  .q-text {
+    font-size: 15px; font-weight: 600; color: #e2e8f0;
+    line-height: 1.6; margin-bottom: 18px;
+  }
+
+  /* OPTIONS */
+  .opt {
+    display: flex; align-items: flex-start; gap: 12px;
+    width: 100%; padding: 12px 16px; border-radius: 12px;
+    border: 1px solid rgba(108,99,255,0.2);
+    background: rgba(108,99,255,0.04);
+    color: #ffffff !important;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer; text-align: left;
+    transition: all 0.18s;
+    margin-bottom: 8px;
+  }
+  .opt span { color: #ffffff !important; }
+  .opt .lt  { color: #ffffff !important; }
+  .opt:disabled { color: #ffffff !important; opacity: 1; cursor: not-allowed; }
+  .opt.correct  { color: #ffffff !important; }
+  .opt.wrong    { color: #ffffff !important; }
+
+  .opt:not(:disabled):hover {
+    transform: translateX(3px);
+    background: rgba(108,99,255,0.12);
+    border-color: rgba(108,99,255,0.45);
+    color: #ffffff !important;
+  }
+  .lt {
+    min-width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(108,99,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: #ffffff !important;
+    flex-shrink: 0;
+  }
+  .opt.correct {
+    background: rgba(34,197,94,0.12) !important;
+    border-color: rgba(34,197,94,0.5) !important;
+    color: #ffffff !important;
+  }
+  .opt.correct .lt { background: rgba(34,197,94,0.3); color: #ffffff !important; }
+  .opt.wrong {
+    background: rgba(239,68,68,0.12) !important;
+    border-color: rgba(239,68,68,0.5) !important;
+    color: #ffffff !important;
+  }
+  .opt.wrong .lt { background: rgba(239,68,68,0.3); color: #ffffff !important; }
+
+  @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.02)} }
+  @keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-5px)} 75%{transform:translateX(5px)} }
+  .anim-pulse { animation: pulse 0.5s ease; }
+  .anim-shake  { animation: shake 0.4s ease; }
+
+  /* FEEDBACK */
+  .feedback {
+    border-radius: 12px; padding: 14px 16px;
+    font-size: 13px; line-height: 1.7; margin-top: 14px;
+    display: none;
+  }
+  .feedback.show { display: block; }
+  .feedback.fb-correct { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.35); color: #86efac; }
+  .feedback.fb-wrong   { background: rgba(239,68,68,0.1);  border: 1px solid rgba(239,68,68,0.35);  color: #fca5a5; }
+
+  /* RESULT */
+  .result-screen {
+    display: none;
+    background: #1e2133;
+    border-radius: 24px;
+    border: 1px solid rgba(108,99,255,0.2);
+    padding: 40px 32px;
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .result-screen.show { display: block; }
+  .result-emoji { font-size: 56px; margin-bottom: 16px; }
+  .result-pct {
+    font-size: 56px; font-weight: 800;
+    background: linear-gradient(135deg, #a78bfa, #6c63ff);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .result-msg { font-size: 17px; color: #94a3b8; margin-bottom: 28px; }
+  .result-cards {
+    display: flex; gap: 14px; justify-content: center; flex-wrap: wrap;
+    margin-bottom: 28px;
+  }
+  .rc {
+    background: #151726; border-radius: 14px;
+    padding: 16px 24px; min-width: 110px;
+    border: 1px solid rgba(108,99,255,0.2);
+  }
+  .rc-val { font-size: 28px; font-weight: 800; }
+  .rc-lab { font-size: 12px; color: #64748b; font-weight: 600; margin-top: 4px; }
+  .rc-val.green { color: #4ade80; }
+  .rc-val.red   { color: #f87171; }
+  .rc-val.blue  { color: #a78bfa; }
+
+  .btn-reset {
+    background: linear-gradient(135deg, #6c63ff, #7c3aed);
+    color: #fff; border: none; border-radius: 12px;
+    padding: 14px 32px; font-size: 15px; font-weight: 700;
+    font-family: 'Inter', sans-serif; cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .btn-reset:hover { opacity: 0.85; }
+
+  /* FAB */
+  .fab {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 50px; height: 50px; border-radius: 50%;
+    background: linear-gradient(135deg, #6c63ff, #7c3aed);
+    color: #fff; border: none; font-size: 20px;
+    cursor: pointer; display: none;
+    align-items: center; justify-content: center;
+    box-shadow: 0 4px 20px rgba(108,99,255,0.4);
+    z-index: 100; transition: opacity 0.2s;
+  }
+  .fab.visible { display: flex; }
+  .fab:hover { opacity: 0.85; }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="badge">🌿 Metodologias de Ensino</div>
+    <h1 class="title">Ciências da Natureza &amp; Sustentabilidade</h1>
+    <p class="subtitle" id="subtitle"></p>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-box">
+    <div class="progress-row">
+      <span class="progress-label" id="prog-text">0 de 0 respondidas</span>
+      <span class="progress-pct" id="prog-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+  </div>
+
+  <!-- PILLS -->
+  <div class="pills">
+    <div class="pill pill-correct">✅ Corretas: <span id="cnt-c">0</span></div>
+    <div class="pill pill-wrong">❌ Erradas: <span id="cnt-w">0</span></div>
+    <div class="pill pill-rest">⏳ Restantes: <span id="cnt-r">0</span></div>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <button class="filter-btn active" onclick="setFilter('all',this)">Todas</button>
+    <button class="filter-btn" onclick="setFilter('unanswered',this)">Não respondidas</button>
+    <button class="filter-btn" onclick="setFilter('correct',this)">Corretas</button>
+    <button class="filter-btn" onclick="setFilter('wrong',this)">Erradas</button>
+  </div>
+
+  <!-- RESULT SCREEN -->
+  <div class="result-screen" id="result-screen">
+    <div class="result-emoji" id="res-emoji">🏆</div>
+    <div class="result-pct" id="res-pct">0%</div>
+    <div class="result-msg" id="res-msg"></div>
+    <div class="result-cards">
+      <div class="rc"><div class="rc-val green" id="res-c">0</div><div class="rc-lab">Corretas</div></div>
+      <div class="rc"><div class="rc-val red"   id="res-w">0</div><div class="rc-lab">Erradas</div></div>
+      <div class="rc"><div class="rc-val blue"  id="res-t">0</div><div class="rc-lab">Total</div></div>
+    </div>
+    <button class="btn-reset" onclick="resetQuiz()">🔄 Refazer Questionário</button>
+  </div>
+
+  <!-- CARDS -->
+  <div id="cards-container"></div>
+
+</div>
+
+<button class="fab" id="fab" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+const LETTERS = ['A','B','C','D','E'];
+
+const Q = [
+  {
+    n:1, tp:"Marketing Verde",
+    ctx:"Antônio Fernando Guimarães afirma que 77% dos anunciantes declara ser fabricante do produto anunciado, porém somente 7% promove os atributos ecológicos específicos dos produtos, sem discutir quais os benefícios ecológicos reais para o consumidor.",
+    q:"Em relação ao marketing verde, assinale a alternativa que representa as sentenças CORRETAS:\nI – O marketing verde é importante por incentivar a pesquisa com tecnologia limpa;\nII – O marketing verde contribui para o desenvolvimento sustentável ao promover produtos com menor impacto ao meio ambiente;\nIII – Pode-se afirmar que as mercadorias cujas embalagens apresentam tons que lembram a natureza e textura similar a reciclado é um produto verde.",
+    opts:["Apenas a I.","II e III.","I e II.","I, II, III.","I e III."],
+    ans:2,
+    explanation:"O marketing verde efetivo vai além de embalagens com visual 'ecológico' (sentença III é falsa). As sentenças I e II são corretas pois o marketing verde de fato incentiva tecnologias limpas (I) e promove produtos com menor impacto ambiental contribuindo para o desenvolvimento sustentável (II). A embalagem com cor verde ou textura reciclada não é, por si só, garantia de produto verde."
+  },
+  {
+    n:2, tp:"Desenvolvimento Sustentável",
+    ctx:"Para que haja crescimento e desenvolvimento econômico de forma sustentável, é necessário abandonar padrões de consumo e geração de rendas antigas.",
+    q:"Sobre as discussões históricas do desenvolvimento sustentável, analise as afirmações:\nI – O Relatório de Brundtland discute a sustentabilidade através de 5 eixos: Eficiência, Escala, Equidade, Autossuficiência e Ética.\nII – A Agenda 21, criada em 1992 durante a Eco-92, também foi um grande passo em direção ao desenvolvimento sustentável.\nIII – A década de 1990 foi uma das mais precárias e na qual menos se discutiu as questões ambientais.\nIV – A Conferência Internacional de Tessalônica (1997) discutiu o consumo responsável e destacou a importância de práticas sustentáveis pelos consumidores.\n\nÉ correto o que se afirma em:",
+    opts:["I, II e III, apenas.","I, II e IV, apenas.","I, III e IV, apenas.","II, III e IV, apenas.","I, II, III e IV."],
+    ans:1,
+    explanation:"A sentença III é falsa: a década de 1990 foi muito ativa em debates ambientais (Eco-92, Agenda 21, Tessalônica). As sentenças I, II e IV são corretas: o Relatório Brundtland usa os 5 eixos citados; a Agenda 21 de 1992 foi marco do desenvolvimento sustentável; e a Conferência de Tessalônica (1997) discutiu o consumo responsável e sustentável."
+  },
+  {
+    n:3, tp:"Meio Ambiente e Sustentabilidade",
+    ctx:"O reflorestamento é uma resposta eficiente para lidar com o aquecimento global, pois as plantas absorvem CO₂ na fotossíntese. A restauração da mata também protege nascentes e melhora a qualidade e quantidade das águas.",
+    q:"Avalie as asserções:\nI – Promover a sustentabilidade local, através da preservação do meio ambiente com incentivo financeiro para proprietários rurais, conduz à melhoria da qualidade de vida ao criar soluções para problemas regionais de poluição.\nPORQUE\nII – Reduz as áreas impactadas pelos processos de desmatamento, eutrofização, assoreamento e poluição dos rios.\n\nA respeito dessas asserções, assinale a opção correta:",
+    opts:[
+      "As asserções I e II são proposições verdadeiras, mas a II não é uma justificativa correta da I.",
+      "A asserção I é uma proposição verdadeira, e a II é uma proposição falsa.",
+      "A asserção I é uma proposição falsa, e a II é uma proposição verdadeira.",
+      "As asserções I e II são proposições verdadeiras, e a II é uma justificativa correta da I.",
+      "As asserções I e II são proposições falsas."
+    ],
+    ans:3,
+    explanation:"Ambas as asserções são verdadeiras: incentivar financeiramente proprietários rurais para preservação do meio ambiente (I) melhora a qualidade de vida regional. E isso de fato ocorre porque reduz desmatamento, eutrofização, assoreamento e poluição dos rios (II), tornando a II uma justificativa direta da I."
+  },
+  {
+    n:4, tp:"Desenvolvimento Sustentável",
+    ctx:"O termo 'desenvolvimento sustentável' foi usado pela primeira vez em 1987, por Gro Harlem Brundtland: 'Desenvolvimento sustentável significa suprir as necessidades do presente sem afetar a habilidade das gerações futuras de suprirem as próprias necessidades'.",
+    q:"Analise as afirmações:\nI – Para promover a preservação e a conservação dos patrimônios culturais e naturais, podemos relacioná-los à necessidade de colocar em prática atitudes sustentáveis.\nII – O ecoturismo é um exemplo de turismo sustentável que visa despertar a admiração das pessoas pelo meio ambiente.\nIII – É necessário haver equilíbrio entre desenvolvimento social, preservação ambiental e desenvolvimento econômico para o alcance do desenvolvimento sustentável.\nIV – O turismo ambiental proporciona melhor qualidade de vida às pessoas, sem gerar prejuízos ao meio ambiente.\n\nÉ correto o que se afirma em:",
+    opts:["II e III","I, II e III","I, II, III e IV","I e II","II, III e IV"],
+    ans:2,
+    explanation:"Todas as quatro afirmações são corretas. O desenvolvimento sustentável exige equilíbrio entre as dimensões social, ambiental e econômica (III). Patrimônios culturais e naturais se associam a atitudes sustentáveis (I). O ecoturismo é exemplo de turismo sustentável (II) e o turismo ambiental bem gerido não causa prejuízos ao ambiente (IV)."
+  },
+  {
+    n:5, tp:"Patrimônio Natural",
+    ctx:"Em 1972, a Unesco organizou a Convenção do Patrimônio Mundial, Cultural e Natural, definindo patrimônios naturais como monumentos naturais, formações geológicas e zonas de habitat de espécies ameaçadas com valor universal excepcional.",
+    q:"Assinale a alternativa que apresenta corretamente exemplos de patrimônios naturais brasileiros:",
+    opts:[
+      "Reservas de Mata Atlântica da Amazônia; Complexo de Áreas Protegidas dos Andes; Minas de ouro em Ouro Preto",
+      "Parque Nacional do Iguaçu; Reservas de Mata Atlântica; Reservas do Cerrado; Complexo de Áreas Protegidas do Pantanal",
+      "Reservas de Mata Atlântica; Parque Nacional do Iguaçu; Cidade histórica de Tiradentes; Minas de ouro em Ouro Preto; Complexo de Áreas Protegidas dos Andes.",
+      "Parque Nacional do Iguaçu; Reservas do Cerrado; Cidade histórica de Tiradentes; Minas de ouro em Ouro Preto; Complexo de Áreas Protegidas dos Andes.",
+      "Reservas do Cerrado; Reservas de Mata Atlântica da Amazônia; Complexo de Áreas Protegidas dos Andes"
+    ],
+    ans:1,
+    explanation:"Os patrimônios naturais brasileiros reconhecidos pela UNESCO incluem o Parque Nacional do Iguaçu, as Reservas de Mata Atlântica, as Reservas do Cerrado e o Complexo de Áreas Protegidas do Pantanal. Minas de ouro em Ouro Preto e a Cidade histórica de Tiradentes são patrimônios CULTURAIS, não naturais. Os Andes não ficam no Brasil."
+  },
+  {
+    n:6, tp:"Educação Ambiental na Ed. Infantil",
+    ctx:"A educação ambiental ensinada nas escolas não deve ser tratada como uma área específica, mas trabalhada em todas as disciplinas, incentivando a participação do aluno e relacionando as aprendizagens ao seu cotidiano.",
+    q:"A respeito da Educação Ambiental na Educação Infantil, assinale a opção que apresenta APENAS a afirmação correta:",
+    opts:[
+      "A Educação Ambiental deve ser trabalhada na Educação Infantil como disciplina isolada e específica, conforme previsto no RCNEI.",
+      "A Educação Ambiental deve ser trabalhada na Educação Infantil, inclusive o RCNEI prevê em seus objetivos: 'observar e explorar o ambiente com atitude de curiosidade, percebendo-se cada vez mais como integrante, dependente e agente transformador do meio ambiente'.",
+      "A Educação Ambiental deve ser trabalhada na Educação Infantil, assim como no Ensino Fundamental, como disciplina específica do currículo, conforme previsto na LDB.",
+      "A Educação Ambiental não deve ser trabalhada na Educação Infantil, pois as crianças não possuem maturidade suficiente.",
+      "A Educação Ambiental não deve ser trabalhada na Educação Infantil, pois o RCNEI não prevê esse tema."
+    ],
+    ans:1,
+    explanation:"O RCNEI (Referencial Curricular para a Educação Infantil) prevê explicitamente que as crianças devem 'observar e explorar o ambiente com atitude de curiosidade, percebendo-se como integrante, dependente e agente transformador do meio ambiente'. A EA não deve ser disciplina isolada, e crianças têm capacidade de compreender o tema de forma lúdica."
+  },
+  {
+    n:7, tp:"Educação Ambiental na Escola",
+    ctx:"Um dos principais problemas encontrados no ensino da educação ambiental é que as crianças pensam que o meio ambiente é composto apenas de fauna e flora e não sabem onde encaixar o ser humano.",
+    q:"Avalie as asserções:\nI – Quando são implantados projetos de educação ambiental nas escolas, é extremamente importante que as crianças participem ativamente e que não sejam conduzidos apenas pelos professores.\nPORQUE\nII – As crianças tendem a ficar muito tempo dentro das salas de aula, afastadas do contato com o meio ambiente. Logo, essas atividades são importantes por trazerem dinamicidade às aulas, aumentando a interação dos alunos com o meio ambiente.\n\nA respeito dessas asserções, assinale a opção correta:",
+    opts:[
+      "A asserção I é uma proposição falsa, e a II é uma proposição verdadeira.",
+      "As asserções I e II são proposições verdadeiras, e a II é uma justificativa correta da I.",
+      "A asserção I é uma proposição verdadeira, e a II é uma proposição falsa.",
+      "As asserções I e II são proposições verdadeiras, mas a II não é uma justificativa correta da I.",
+      "As asserções I e II são proposições falsas."
+    ],
+    ans:3,
+    explanation:"Ambas as proposições são verdadeiras. A participação ativa das crianças nos projetos de EA (I) é fundamental. A II também é verdadeira (crianças ficam muito tempo em sala, e as atividades externas aumentam dinamismo e interação). Porém, a II não justifica diretamente a I, pois a razão para a participação ativa das crianças é pedagógica e não apenas pela falta de contato com o meio ambiente."
+  },
+  {
+    n:8, tp:"Formação de Professores",
+    ctx:"Frequentemente, os educadores buscam criar suas aulas com base no que é proposto em livros didáticos. Apenas aulas teóricas não bastam para efetivar o aprendizado sobre o meio ambiente.",
+    q:"Analise as asserções e selecione a alternativa correta:\nI – A formação dos professores precisa sofrer mudanças para que eles estejam melhor preparados para lidar com o tema, o qual é relativamente recente.\nII – Muitas vezes os professores estão bem-intencionados e motivados a aplicar a educação ambiental, porém não o fazem de forma efetiva.",
+    opts:[
+      "A asserção I é correta e II é falsa.",
+      "A asserção I é falsa e II é correta.",
+      "Ambas asserções estão corretas e II é uma justificativa de I.",
+      "Ambas asserções são falsas.",
+      "Ambas asserções estão corretas e I é uma justificativa de II."
+    ],
+    ans:2,
+    explanation:"Ambas as asserções são corretas e a II justifica a I. A formação precisa mudar (I) porque muitos professores estão bem-intencionados mas não aplicam efetivamente a EA (II) — isso ocorre justamente pela formação insuficiente. A falta de preparo na formação inicial explica por que, apesar da boa vontade, a aplicação não é efetiva."
+  },
+  {
+    n:9, tp:"Práticas na Educação Ambiental",
+    ctx:"Frequentemente, os educadores criam aulas com base em livros didáticos, onde a qualidade é confundida com quantidade. Apenas aulas teóricas não bastam para efetivar o aprendizado sobre o meio ambiente.",
+    q:"Considerando o contexto apresentado, avalie as afirmações:\nI – O docente deve realizar uma reflexão constante de sua prática.\nII – O professor sempre deverá questionar sobre o seu método de aprendizado para refinar o seu trabalho.\nIII – As crianças aprendem de forma significativa, principalmente, por meio de exemplos.\nIV – O docente precisa apresentar uma conduta exemplar, tanto dentro quanto fora do contexto escolar.\n\nÉ correto o que se afirma em:",
+    opts:["I, III e IV, apenas.","I, II e IV, apenas.","II, III e IV, apenas.","I, II, III e IV.","I, II e III, apenas."],
+    ans:3,
+    explanation:"Todas as quatro afirmações são corretas. O docente deve refletir sobre sua prática (I), questionar seus métodos (II), pois as crianças aprendem por exemplos (III) e o professor precisa ter conduta exemplar dentro e fora da escola (IV), sendo referência para os alunos em relação ao meio ambiente."
+  },
+  {
+    n:10, tp:"Poluição dos Rios",
+    ctx:"Devemos mostrar às crianças os impactos do homem sobre os corpos d'água, onde há o despejo de esgoto não tratado contendo metais pesados, agrotóxicos, corantes, surfactantes e outros contaminantes.",
+    q:"Avalie as asserções:\nI – Trazendo a situação para a realidade dos alunos, podemos citar o mau cheiro dos rios devido à poluição despejada e como isso atrapalha até a sua diversão.\nPORQUE\nII – O esgoto in natura despejado seguirá o curso do rio até atingir o mar, deixando as praias totalmente poluídas e até perigosas à saúde humana e dos animais.\n\nA respeito dessas asserções, assinale a opção correta:",
+    opts:[
+      "A asserção I é uma proposição falsa, e a II é uma proposição verdadeira.",
+      "As asserções I e II são proposições verdadeiras, mas a II não é uma justificativa correta da I.",
+      "As asserções I e II são proposições verdadeiras, e a II é uma justificativa correta da I.",
+      "A asserção I é uma proposição verdadeira, e a II é uma proposição falsa.",
+      "As asserções I e II são proposições falsas."
+    ],
+    ans:2,
+    explanation:"Ambas as proposições são verdadeiras e a II justifica a I. O mau cheiro dos rios polui o ambiente local afetando lazer das crianças (I). O esgoto que percorre os rios e chega ao mar contamina as praias (II), o que explica e justifica por que a poluição dos rios (referida em I) tem consequências que afetam a vida das pessoas além das margens fluviais."
+  },
+  {
+    n:11, tp:"Reciclagem e Coleta Seletiva",
+    ctx:"O Brasil produz cerca de 240 mil toneladas de lixo diariamente e apenas 2% é reciclado. Segundo o CEMPRE (2019), apenas 22% dos municípios do Brasil contam com a coleta seletiva, em sua maioria nas regiões Sul e Sudeste.",
+    q:"Analise as afirmações:\nI – O descarte incorreto do lixo pode acarretar sérios problemas ambientais, como poluição do solo, das águas e do ar.\nII – O acúmulo de lixo não é um risco à saúde da população, considerando que os aterros sanitários já comportam a quantidade de resíduos produzidos.\nIII – A falta de divulgação, acomodação da população e descrédito das ações do poder público são fatores que dificultam a coleta seletiva.\nIV – A falta de espaço para armazenar recicláveis, necessidade de limpar embalagens e tempo gasto na separação são fatores que dificultam a reciclagem.\n\nÉ correto o que se afirma em:",
+    opts:["I, III e IV","I e II","I, II e III","I, II, III e IV","II e III"],
+    ans:0,
+    explanation:"A sentença II é FALSA: o acúmulo de lixo representa sim um risco grave à saúde pública — os aterros sanitários são insuficientes e o lixo gera vetores de doenças. As sentenças I, III e IV são todas corretas: o descarte incorreto polui solo, água e ar (I); fatores socioculturais dificultam a coleta seletiva (III); e dificuldades práticas como espaço e tempo dificultam a reciclagem (IV)."
+  },
+  {
+    n:12, tp:"Categorias de Sustentabilidade",
+    ctx:"A sustentabilidade é um conceito que engloba várias ideias, dividida em cinco categorias: ecológica, ambiental, social, política e econômica.",
+    q:"Selecione V para as definições corretas e F para as falsas:\n( ) A sustentabilidade ecológica está apenas relacionada ao manejo da biota nos grandes centros urbanos.\n( ) A sustentabilidade ambiental refere-se à resiliência e resistência do meio ambiente.\n( ) A sustentabilidade social está relacionada às comunidades animais e suas relações.\n( ) A sustentabilidade política tem como objetivo garantir a incorporação plena dos indivíduos ao processo de desenvolvimento.\n( ) A sustentabilidade econômica é implantada através do investimento público e privado.",
+    opts:["V-F-V-F-V","V-V-V-V-V","F-V-F-V-V","V-F-V-V-V","F-F-V-V-V"],
+    ans:2,
+    explanation:"A sustentabilidade ecológica não se limita a grandes centros urbanos (F). A ambiental refere-se à resiliência do meio ambiente (V). A social trata de comunidades HUMANAS, não animais (F). A política garante incorporação dos indivíduos ao desenvolvimento (V). A econômica é implantada por investimento público e privado (V). Portanto: F-V-F-V-V."
+  },
+  {
+    n:13, tp:"Agenda 21",
+    ctx:"A Agenda 21, criada em 1992 durante a Eco-92, foi um grande passo em direção ao desenvolvimento sustentável.",
+    q:"Avalie as asserções:\nI – A Agenda 21 é um 'instrumento de planejamento para a construção de sociedades sustentáveis, em diferentes bases geográficas, que concilia métodos de proteção ambiental, justiça social e eficiência econômica' a fim de promover o desenvolvimento sustentável.\nPORQUE\nII – As nações compreenderam que era necessário mudar os antigos padrões de crescimento econômico e se comprometeram em revisar o modelo atual econômico para alcançar a justiça social e a preservação ambiental.\n\nA respeito dessas asserções, assinale a opção correta:",
+    opts:[
+      "A asserção I é uma proposição falsa, e a II é uma proposição verdadeira.",
+      "As asserções I e II são proposições falsas.",
+      "As asserções I e II são proposições verdadeiras, e a II é uma justificativa correta da I.",
+      "As asserções I e II são proposições verdadeiras, mas a II não é uma justificativa correta da I.",
+      "A asserção I é uma proposição verdadeira, e a II é uma proposição falsa."
+    ],
+    ans:2,
+    explanation:"Ambas as asserções são verdadeiras e a II justifica a I. A Agenda 21 é de fato um instrumento de planejamento para construção de sociedades sustentáveis (I). Isso foi possível porque as nações perceberam a necessidade de mudar padrões de crescimento econômico comprometendo-se com justiça social e preservação ambiental (II), o que motivou a criação da Agenda 21."
+  },
+  {
+    n:14, tp:"Sustentabilidade — Relatório Brundtland",
+    ctx:"A ideia de sustentabilidade ganhou atenção em 1987, no documento 'Nosso Futuro em Comum' ou 'Relatório de Brundtland', que discute a sustentabilidade através de 5 eixos: Eficiência, Escala, Equidade, Autossuficiência e Ética.",
+    q:"Avalie as asserções:\nI – Desenvolvimento sustentável significa suprir as necessidades do presente sem afetar a habilidade das gerações futuras de suprirem as próprias necessidades.\nPORQUE\nII – A memória é o elo entre a sociedade e sua identidade cultural e estabelece um vínculo entre o presente e as gerações antigas.\n\nA respeito dessas asserções, assinale a opção correta:",
+    opts:[
+      "As asserções I e II são proposições verdadeiras, mas a II não é uma justificativa correta da I.",
+      "As asserções I e II são proposições falsas.",
+      "As asserções I e II são proposições verdadeiras, e a II é uma justificativa correta da I.",
+      "A asserção I é uma proposição verdadeira, e a II é uma proposição falsa.",
+      "A asserção I é uma proposição falsa, e a II é uma proposição verdadeira."
+    ],
+    ans:0,
+    explanation:"Ambas as proposições são verdadeiras: a definição clássica de desenvolvimento sustentável (I) está correta, e a memória cultural como elo geracional (II) também é verdadeira. Porém, a II não justifica a I, pois a memória cultural como elo com o passado não explica por que devemos preservar recursos para as gerações FUTURAS. São ideias relacionadas mas a II não é fundamento causal de I."
+  },
+  {
+    n:15, tp:"Eixos do Relatório Brundtland",
+    ctx:"O Relatório Brundtland (1987) discute a sustentabilidade através de 5 eixos: 1) Eficiência, 2) Escala, 3) Equidade, 4) Autossuficiência e 5) Ética.",
+    q:"Assinale a alternativa que apresenta a conceituação CORRETA de um desses eixos:",
+    opts:[
+      "Desenvolvimento Econômico: Os recursos naturais são capazes de promover o desenvolvimento econômico dos países em escalas cada vez maiores.",
+      "Ética: Os valores éticos devem ser deixados de lado para que seja possível o desenvolvimento sustentável.",
+      "Crescimento Populacional: O Relatório Brundtland prevê que o planeta é capaz de sustentar o crescimento populacional, independente de seu volume.",
+      "Igualdade: Atualmente todos são iguais e possuem os mesmos acessos em relação ao meio ambiente.",
+      "Autossuficiência: Incentivo à desvinculação do mercado mundial para que a nação desenvolva seus próprios meios de crescimento."
+    ],
+    ans:4,
+    explanation:"A única definição correta é Autossuficiência: o eixo incentiva a desvinculação do mercado mundial para que cada nação desenvolva seus próprios meios de crescimento. As demais alternativas distorcem os conceitos: a Ética não manda deixar valores de lado, a Equidade (não Igualdade) trata do acesso justo, e o Relatório não prevê crescimento ilimitado da população."
+  },
+  {
+    n:16, tp:"5 Ps da Sustentabilidade",
+    ctx:"O Movimento Nacional ODS apresenta 'Os 5 Ps da sustentabilidade'. Quando cada nação realizar a sua parte, caminharemos em direção ao equilíbrio através de uma vida sustentável.",
+    q:"Em relação aos 5 Ps da sustentabilidade, avalie as afirmações:\nI – Pessoas: têm o dever de participar da luta contra a pobreza e a fome para garantir qualidade de vida aceitável a todos.\nII – Prosperidade: se refere ao nosso dever de assegurar que todos tenham uma vida próspera e que o nosso desenvolvimento entre em equilíbrio com a preservação do meio ambiente.\nIII – Paz: devemos buscar meios de resolver conflitos, sem considerar, em hipótese alguma, a violência como opção.\nIV – Parcerias: de todas as nações para contribuir da sua forma em ajudar às comunidades necessitadas através de respostas sustentáveis.\nV – Planeta: Proteger os recursos naturais e o clima para as gerações futuras.\n\nÉ correto o que se afirma em:",
+    opts:["I e II apenas","I, II, III e IV apenas","I e V apenas","I, II e III apenas","I, II, III, IV e V"],
+    ans:4,
+    explanation:"Todos os cinco Ps da sustentabilidade estão corretamente descritos: Pessoas (luta contra pobreza), Prosperidade (vida próspera em equilíbrio com o ambiente), Paz (resolução não violenta de conflitos), Parcerias (cooperação entre nações) e Planeta (proteção dos recursos naturais para o futuro). Portanto, I, II, III, IV e V estão todos corretos."
+  },
+  {
+    n:17, tp:"Patrimônio Cultural",
+    ctx:"É dever de todos promover a conservação do patrimônio cultural. A memória é o elo entre a sociedade e sua identidade cultural e estabelece um vínculo entre o presente e as gerações antigas.",
+    q:"A União, os Estados, o Distrito Federal e os Municípios devem:\nI – Preservar as florestas, a fauna e a flora.\nII – Proteger o meio ambiente e combater a poluição em qualquer de suas formas.\nIII – Proteger os documentos, as obras e outros bens de valor histórico, artístico e cultural, os monumentos, as paisagens naturais notáveis e os sítios arqueológicos.\nIV – Viabilizar a evasão, a destruição e a descaracterização de obras de arte e de outros bens de valor histórico, artístico ou cultural.\nV – Proporcionar os meios de acesso à cultura, à educação, à ciência, à tecnologia, à pesquisa e à inovação.\n\nÉ correto o que se afirma em:",
+    opts:["II, III, IV e V, apenas.","I, II, III, IV e V.","I, IV e V, apenas.","I, II, III e V, apenas.","I, II e III, apenas."],
+    ans:3,
+    explanation:"A sentença IV é FALSA: os entes federativos devem PROTEGER os bens de valor histórico, não 'viabilizar a evasão, destruição e descaracterização' deles. As sentenças I, II, III e V estão corretas, refletindo os deveres constitucionais de preservação ambiental, cultural e promoção do acesso à cultura e educação."
+  },
+  {
+    n:18, tp:"Responsabilidade Social e Consumismo",
+    ctx:"O desenvolvimento tecnológico e econômico acarretou um aumento da classe média, resultando em um aumento do consumismo. A ideia de sustentabilidade busca mudar essa situação em prol do meio ambiente.",
+    q:"Assinale a alternativa CORRETA sobre consumismo e sustentabilidade:",
+    opts:[
+      "É importante que cada consumidor selecione o que é essencial na hora das compras, já que, quanto mais se compra, mais lixo é gerado. Além disso, o consumidor deve adotar práticas sustentáveis, como a reciclagem.",
+      "O educador não está envolvido no processo de transformação dos métodos de consumo, sendo esta uma responsabilidade do governo somente.",
+      "Frente a esse padrão de vida, também cabe às empresas promoverem tecnologias limpas, o que inclui a utilização de plástico em seus produtos, já que este é um produto biodegradável.",
+      "O consumismo exagerado é praticado em maior parte nos países subdesenvolvidos, já que os preços das mercadorias são menores.",
+      "Todas as empresas buscam ter um desenho sustentável e não é necessário que haja uma pré-seleção dos produtos que se desejam comprar."
+    ],
+    ans:0,
+    explanation:"A alternativa correta reconhece a responsabilidade individual do consumidor: selecionar o que é essencial reduz a geração de lixo, e adotar práticas como reciclagem contribui para a sustentabilidade. As demais alternativas contêm equívocos: o plástico não é biodegradável, o educador tem papel relevante no tema, e o consumismo excessivo é característico de países desenvolvidos."
+  },
+  {
+    n:19, tp:"Educação Ambiental e Responsabilidade Social",
+    ctx:"Desde o seu surgimento, o homem modificou o meio ambiente em prol de sua evolução. Com o passar dos séculos, maior era o impacto do homem sobre o meio ambiente, e somente o homem é capaz de causar modificações de forma consciente.",
+    q:"Considerando essa evolução histórica e os estudos realizados, assinale a afirmativa CORRETA sobre a Educação Ambiental:",
+    opts:[
+      "Educação Ambiental faz a ponte entre as questões ambientais e econômicas, sendo esses dois os únicos pontos de discussão.",
+      "Educação Ambiental também está ligada à responsabilidade social, a qual corresponde ao dever da sociedade de preservar o meio ambiente e sua própria cultura.",
+      "Educação Ambiental cuida exclusivamente da formação das crianças para que estas possam construir um mundo melhor no futuro.",
+      "A Educação Ambiental visa o cuidado exclusivo do meio ambiente natural, sem o qual é impossível sobrevivermos.",
+      "Educação Ambiental é uma disciplina curricular obrigatória em todos os níveis de ensino."
+    ],
+    ans:1,
+    explanation:"A Educação Ambiental vai além das questões puramente ecológicas — ela está ligada à responsabilidade social, abrangendo o dever da sociedade de preservar o meio ambiente E sua própria cultura. As demais alternativas restringem erroneamente a EA apenas às questões econômicas, ou apenas à formação de crianças, ou ao meio ambiente natural, ou a uma disciplina curricular obrigatória."
+  },
+  {
+    n:20, tp:"EDS — Educação para o Desenvolvimento Sustentável",
+    ctx:"O desenvolvimento sustentável tornou-se uma necessidade mundial para que o mundo de nossas gerações futuras não entre em colapso. Assim, surgiu a Educação para o Desenvolvimento Sustentável (EDS).",
+    q:"Analise as sentenças sobre a EDS e selecione a alternativa com as afirmações CORRETAS:\nI – A EDS é importante para contradizer falsos argumentos como os que dizem que os recursos naturais são infinitos ou que os problemas ambientais atuais não existem.\nII – A EDS prioriza exclusivamente a educação formal, especificamente para as crianças, já que são as únicas para as quais a aprendizagem é mais simples e efetiva.\nIII – A EDS apenas busca manter exatamente como estão os padrões de ensino e a atual estrutura da educação para evitar mudanças extremas.",
+    opts:["I e II.","I e III.","Apenas III.","Apenas I.","II e III."],
+    ans:3,
+    explanation:"Apenas a sentença I é correta. A EDS é importante para desmistificar argumentos falsos sobre recursos naturais infinitos ou inexistência de problemas ambientais. A sentença II é falsa: a EDS não prioriza exclusivamente a educação formal para crianças; abrange todas as idades e modalidades. A sentença III é falsa: a EDS busca TRANSFORMAR os padrões de ensino, não mantê-los como estão."
+  },
+  {
+    n:21, tp:"Reflorestamento e Agrofloresta",
+    ctx:"Devido aos diferentes impactos ambientais causados pelo homem, é necessário implantar medidas para reverter a degradação do meio ambiente e atividades que gerem renda com o mínimo de danos ambientais.",
+    q:"Analise as afirmativas:\nI – O reflorestamento é extremamente importante para aumentar a área de um fragmento florestal e formar corredores ecológicos.\nII – A agrofloresta consiste em uma agricultura diversificada, onde há o plantio desde hortaliças até árvores. Há geração de renda devido à variedade de produtos sem agredir o meio ambiente, como as monoculturas.\n\nEm relação às asserções, selecione a alternativa correta:",
+    opts:[
+      "As asserções I e II estão relacionadas, já que a implantação de agroflorestas é uma maneira de reflorestar.",
+      "As asserções I e II não estão relacionadas, já que são atividades distintas com propósitos diferentes.",
+      "As asserções I e II não estão relacionadas, já que são atividades predominantes no território brasileiro.",
+      "As asserções I e II estão relacionadas, já que é permitido desmatar uma área desde que seja implantada a agrofloresta.",
+      "As asserções I e II não estão relacionadas, já que o reflorestamento é realizado apenas por grandes empresas."
+    ],
+    ans:0,
+    explanation:"As asserções I e II estão relacionadas porque a implantação de agroflorestas é uma maneira de reflorestar. A agrofloresta combina espécies agrícolas com árvores, auxiliando na recuperação de áreas degradadas (assim como o reflorestamento) e ao mesmo tempo gerando renda. São práticas complementares que contribuem para a restauração ambiental."
+  },
+  {
+    n:22, tp:"Percepções do Meio Ambiente",
+    ctx:"Um dos principais problemas no ensino da educação ambiental é que as crianças pensam que o meio ambiente é composto apenas de fauna e flora, não sabendo onde encaixar o ser humano.",
+    q:"Assinale a alternativa com as sentenças CORRETAS:\nI – Para a percepção sócio-ambiental, o meio ambiente é composto exclusivamente por elementos abióticos e bióticos, onde o homem não está incluso.\nII – A percepção utilitarista consiste em uma visão biocêntrica, onde a natureza existe para disponibilizar recursos ao homem e promover a sua sobrevivência.\nIII – A percepção abrangente vê o meio ambiente de forma mais complexa e é constituído por aspectos naturais e resultantes da atividade do homem.",
+    opts:["Apenas II.","I e III.","II e III.","Apenas III.","I, II e III."],
+    ans:3,
+    explanation:"Apenas a sentença III está correta: a percepção abrangente é aquela que vê o meio ambiente de forma complexa, incluindo aspectos naturais e resultantes da atividade humana. A sentença I está errada pois a percepção sócio-ambiental inclui o homem como parte do meio ambiente. A sentença II está errada pois a visão utilitarista é ANTROPOcêntrica (não biocêntrica) — a natureza existe para servir ao homem."
+  },
+  {
+    n:23, tp:"Plano Diretor e Sustentabilidade",
+    ctx:"As práticas sustentáveis devem ser incentivadas não só por órgãos nacionais, mas também pelos responsáveis locais. Os governantes das cidades também são responsáveis por promover campanhas e acionar medidas cabíveis.",
+    q:"Analise as asserções:\nI – A implantação do Plano Diretor busca acarretar a responsabilidade social e melhorar a qualidade de vida da população.\nII – Com a sustentabilidade, os cidadãos poderão usufruir dos recursos atuais, garantindo o mesmo para as gerações futuras.\n\nEm relação às asserções, selecione a alternativa correta:",
+    opts:[
+      "As asserções I e II não estão relacionadas, já que o Plano Diretor envolve apenas aspectos sociais e econômicos.",
+      "As asserções I e II não estão relacionadas, já que a sustentabilidade prioriza a preservação do meio ambiente acima de tudo.",
+      "As asserções I e II estão relacionadas, mas o Plano Diretor deve ser implantado em um momento distinto das práticas sustentáveis.",
+      "As asserções I e II estão relacionadas, já que a asserção I busca ter como resultado a II.",
+      "As asserções I e II estão relacionadas, já que a asserção II acarreta a I."
+    ],
+    ans:3,
+    explanation:"As asserções estão relacionadas e a I busca ter como resultado a II. O Plano Diretor (I) é um instrumento de planejamento urbano que promove responsabilidade social e qualidade de vida — e isso tem como resultado que os cidadãos possam usufruir dos recursos atuais garantindo os mesmos para as gerações futuras (II), que é a essência do desenvolvimento sustentável."
+  },
+  {
+    n:24, tp:"Importância da EA nas Escolas",
+    ctx:"A crescente preocupação mundial com o meio ambiente acarretou em transformações da sociedade, em que, atualmente, busca-se estimular a conscientização ambiental para ter uma vida sustentável.",
+    q:"Assinale a alternativa que apresenta a IMPORTÂNCIA da educação ambiental nas escolas:",
+    opts:[
+      "A Educação Ambiental deve ter um componente específico e obrigatório.",
+      "A Educação Ambiental não precisa ser ensinada nas escolas, pois não faz parte da grade curricular.",
+      "O estudo da Educação Ambiental contribui para que os alunos entendam a importância da preservação ambiental para a sociedade e possam compartilhar esse conhecimento com sua família.",
+      "A Educação Ambiental deve ser ensinada exclusivamente nas escolas e não deve ser trabalhada fora delas.",
+      "O estudo da Educação Ambiental contribui para que os alunos compreendam que a preservação ambiental é apenas um mito."
+    ],
+    ans:2,
+    explanation:"A EA nas escolas contribui para que alunos entendam a importância da preservação ambiental para toda a sociedade e possam multiplicar esse conhecimento com suas famílias. A EA não deve ser componente isolado ou exclusivo das escolas, não é um mito e sim essencial, e a escola deve colaborar com outros espaços educativos para formar cidadãos conscientes."
+  },
+  {
+    n:25, tp:"Educação Ambiental — Abordagem Correta",
+    ctx:"A educação ambiental nas escolas é capaz de responder questões fundamentais sobre o porquê de proteger a natureza aos jovens e crianças, além de estimulá-los ao compartilhamento desse conhecimento para toda a família.",
+    q:"Sobre a Educação Ambiental na escola, assinale a alternativa CORRETA:",
+    opts:[
+      "A educação ambiental ensinada nas escolas deve ser tratada como uma área específica.",
+      "A educação ambiental ensinada nas escolas não deve ser tratada como uma área específica, mas ela deve ser trabalhada em todas as disciplinas.",
+      "A educação ambiental ensinada nas escolas deve focar apenas no meio ambiente natural.",
+      "A educação ambiental não precisa ser ensinada nas escolas, ela deve ser trabalhada na educação não-formal.",
+      "A educação ambiental deve se focar apenas no desenvolvimento de projetos práticos que efetivamente sejam aplicados."
+    ],
+    ans:1,
+    explanation:"A EA não deve ser tratada como disciplina ou área específica, mas sim trabalhada de forma transversal em todas as disciplinas do currículo. Isso permite que o aluno relacione as aprendizagens ao seu cotidiano e a diferentes áreas do conhecimento, tornando o aprendizado mais significativo e efetivo. Não se limita ao meio ambiente natural nem exclusivamente a projetos práticos."
+  },
+  {
+    n:26, tp:"RCNEI e DCNEI",
+    ctx:"Em 1998, o Ministério da Educação elaborou o RCNEI (Referencial Curricular para a Educação Infantil). Já em 2010, foi criado o DCNEI (Diretrizes Curriculares Nacionais para a Educação Infantil) para elaborar propostas de trabalho.",
+    q:"A respeito do RCNEI e DCNEI, assinale a alternativa CORRETA:\nI – O RCNEI aborda a educação ambiental de forma clara e explícita, onde é sugerida praticá-la através de brincadeiras e canções.\nII – O DCNEI evidencia a importância da transversalidade através da valorização da cultura e costumes da comunidade em questão.\nIII – O DCNEI afirma que as atividades devem incentivar a curiosidade, a exploração, o encantamento, o questionamento, a indagação e o conhecimento das crianças em relação ao mundo físico e social, ao tempo e à natureza.\nIV – Ambos documentos sempre buscam citar o termo 'educação ambiental' para enfatizar a sua importância, destacando que deve ser trabalhada apenas nas escolas.",
+    opts:["F-V-F-F.","V-F-F-V.","F-V-V-F.","V-F-V-V.","V-V-V-V."],
+    ans:2,
+    explanation:"A sentença I é falsa: o RCNEI não aborda a EA de forma explícita com esse nome. A sentença II é verdadeira: o DCNEI valoriza a transversalidade e a cultura da comunidade. A sentença III é verdadeira: o DCNEI incentiva curiosidade, exploração e conhecimento da natureza. A sentença IV é falsa: os documentos não restringem a EA apenas às escolas. Portanto: F-V-V-F."
+  },
+  {
+    n:27, tp:"Educação Ambiental na Ed. Infantil — Experiências",
+    ctx:"Para o ensino infantil, muitas vezes utilizamos as interações e brincadeiras como um método efetivo de aprendizado.",
+    q:"No trabalho com educação ambiental na educação infantil, devemos garantir experiências que:\nI – promovam o conhecimento de si e do mundo por meio da ampliação de experiências sensoriais, expressivas e corporais.\nII – favoreçam a imersão das crianças nas diferentes linguagens e o progressivo domínio de vários gêneros e formas de expressão: gestual, verbal, plástica, dramática e musical.\nIII – recriem, em contextos significativos para as crianças, relações quantitativas, medidas, formas e orientações espaço-temporais.\nIV – ampliem a confiança e a participação das crianças nas atividades individuais e coletivas.\n\nÉ correto o que se afirma em:",
+    opts:["I, II, e IV apenas.","II, e IV apenas.","I, II, III e IV.","II e III apenas.","II, III e IV apenas."],
+    ans:2,
+    explanation:"Todas as quatro experiências são corretas e devem ser garantidas na educação ambiental infantil. Experiências sensoriais e corporais (I), diversas formas de linguagem e expressão (II), relações quantitativas e espaço-temporais (III), e ampliação da confiança e participação coletiva (IV) fazem parte de um currículo integrado e significativo para a primeira infância."
+  },
+  {
+    n:28, tp:"Formação do Educador Ambiental",
+    ctx:"O educador é o intermediário entre os alunos, a escola e o conhecimento sobre o meio ambiente. Como a discussão sobre educação ambiental é considerada recente, há a necessidade de reformular o ensino superior em relação à formação dos docentes.",
+    q:"Avalie as asserções:\nI – É fundamental que o educador saiba mesclar os saberes: os saberes sociais, os provindos de livros e o do aluno.\nPORQUE\nII – É importante que o educador exerça a sua profissão de forma orgulhosa e prazerosa para que o aprendizado ocorra de forma mais efetiva.\n\nA respeito dessas asserções, assinale a opção correta:",
+    opts:[
+      "A asserção I é uma proposição verdadeira, e a II é uma proposição falsa.",
+      "As asserções I e II são proposições verdadeiras, mas a II não é uma justificativa correta da I.",
+      "A asserção I é uma proposição falsa, e a II é uma proposição verdadeira.",
+      "As asserções I e II são proposições verdadeiras, e a II é uma justificativa correta da I.",
+      "As asserções I e II são proposições falsas."
+    ],
+    ans:1,
+    explanation:"Ambas as proposições são verdadeiras: mesclar saberes sociais, teóricos e do aluno é fundamental para o educador (I); e exercer a profissão com orgulho e prazer favorece o aprendizado (II). Porém, a II não justifica a I — a necessidade de mesclar saberes decorre da natureza do processo educativo, não do prazer do professor. São fatos independentes e verdadeiros."
+  },
+  {
+    n:29, tp:"EA e Educação Formal/Informal",
+    ctx:"Como já visto na Unidade 1, a Educação Ambiental é responsável por auxiliar e estimular o uso consciente dos recursos naturais e promover a sustentabilidade.",
+    q:"Assinale a opção que apresenta APENAS a afirmação correta em relação à Educação Ambiental:",
+    opts:[
+      "A Educação Ambiental está ligada apenas às questões ambientais discutidas na educação informal, atuando diretamente na sociedade.",
+      "A Educação Ambiental está ligada apenas às questões ambientais discutidas na educação formal, tendo o dever de formar alunos que possam preservar o meio ambiente.",
+      "A Educação Ambiental está ligada apenas às questões ambientais discutidas na educação, seja ela formal ou informal, não tendo a pretensão de modificar ou interferir diretamente na sociedade.",
+      "A Educação Ambiental também está ligada à responsabilidade social, a qual corresponde ao dever da sociedade em preservar o meio ambiente e sua própria cultura, extremamente importante para o conhecimento histórico e para o reconhecimento de um povo.",
+      "A Educação Ambiental está exclusivamente ligada às questões ambientais, ou seja, corresponde ao dever da sociedade em preservar o meio ambiente natural."
+    ],
+    ans:3,
+    explanation:"A EA não se restringe à educação formal ou informal, tampouco às questões puramente ambientais. Ela está ligada à responsabilidade social — o dever de preservar o meio ambiente E a própria cultura de um povo (crenças, hábitos e conhecimentos de grupos específicos). A cultura e o patrimônio histórico são dimensões essenciais da EA na perspectiva da responsabilidade social ampliada."
+  },
+  {
+    n:30, tp:"Precariedade de Materiais e Hortas",
+    ctx:"Para o ensino infantil, muitas vezes utilizamos as interações e brincadeiras como um método efetivo de aprendizado. A precariedade de materiais e recursos é um dos desafios frequentes para os professores.",
+    q:"Analise as asserções e selecione a alternativa correta:\nI – A precariedade dos materiais é um dos motivos que dificultam a aplicação de atividades ambientais.\nII – A criação de hortas comunitárias é uma forma dinâmica e barata de se trabalhar a educação ambiental.",
+    opts:[
+      "As asserções I e II estão corretas e II é uma consequência de I.",
+      "Ambas asserções estão incorretas.",
+      "Apenas a asserção II está correta.",
+      "Ambas asserções estão corretas, porém II não é uma consequência de I.",
+      "Apenas a asserção I está correta."
+    ],
+    ans:3,
+    explanation:"Ambas as afirmações são verdadeiras: a precariedade de materiais dificulta as atividades ambientais (I), e as hortas comunitárias são uma estratégia dinâmica e de baixo custo para a EA (II). Porém, a II não é consequência da I — a criação de hortas não decorre da precariedade de materiais, são fatos independentes. A horta é uma solução, mas não causada diretamente pelo problema material."
+  }
+];
+
+// STATE
+const state = Array(Q.length).fill(null); // null | 'correct' | 'wrong'
+let currentFilter = 'all';
+
+// INIT
+function init() {
+  document.getElementById('subtitle').textContent = `${Q.length} questões sobre Sustentabilidade, Educação Ambiental e Metodologias de Ensino`;
+  document.getElementById('cnt-r').textContent = Q.length;
+  renderCards();
+  updateProgress();
+}
+
+function renderCards() {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+  Q.forEach((q, i) => {
+    const card = buildCard(q, i);
+    container.appendChild(card);
+  });
+  applyFilter(currentFilter);
+}
+
+function buildCard(q, idx) {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.id = `card-${idx}`;
+
+  const head = `<div class="card-head">
+    <span class="q-badge">Questão ${q.n}</span>
+    <span class="q-topic">${q.tp}</span>
+  </div>`;
+
+  const ctx = q.ctx ? `<div class="q-ctx">${q.ctx}</div>` : '';
+
+  const qText = q.q.replace(/\n/g,'<br>');
+
+  let opts = '';
+  q.opts.forEach((o,j) => {
+    opts += `<button class="opt" id="opt-${idx}-${j}" onclick="answer(${idx},${j})">
+      <span class="lt">${LETTERS[j]}</span>
+      <span>${o}</span>
+    </button>`;
+  });
+
+  const feedback = `<div class="feedback" id="fb-${idx}"></div>`;
+
+  card.innerHTML = head + ctx + `<div class="q-text">${qText}</div>` + opts + feedback;
+  return card;
+}
+
+function answer(idx, chosen) {
+  if (state[idx] !== null) return;
+
+  const correct = Q[idx].ans;
+  const isCorrect = chosen === correct;
+  state[idx] = isCorrect ? 'correct' : 'wrong';
+
+  // Disable all options
+  for (let j = 0; j < Q[idx].opts.length; j++) {
+    const btn = document.getElementById(`opt-${idx}-${j}`);
+    btn.disabled = true;
+    btn.style.cursor = 'not-allowed';
+  }
+
+  // Mark chosen
+  const chosenBtn = document.getElementById(`opt-${idx}-${chosen}`);
+  if (isCorrect) {
+    chosenBtn.classList.add('correct');
+    chosenBtn.classList.add('anim-pulse');
+  } else {
+    chosenBtn.classList.add('wrong');
+    chosenBtn.classList.add('anim-shake');
+    // Mark correct
+    document.getElementById(`opt-${idx}-${correct}`).classList.add('correct');
+  }
+
+  // Card border
+  const card = document.getElementById(`card-${idx}`);
+  card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+
+  // Feedback
+  const fb = document.getElementById(`fb-${idx}`);
+  if (isCorrect) {
+    fb.className = 'feedback show fb-correct';
+    fb.innerHTML = '✅ <strong>Parabéns! Resposta correta!</strong>';
+  } else {
+    const chosenLetter = LETTERS[chosen];
+    const correctLetter = LETTERS[correct];
+    const chosenText = Q[idx].opts[chosen];
+    const correctText = Q[idx].opts[correct];
+    fb.className = 'feedback show fb-wrong';
+    fb.innerHTML = `❌ <strong>Incorreto.</strong> A alternativa ${chosenLetter}) <em>"${chosenText}"</em> está errada. A correta é ${correctLetter}) <em>"${correctText}"</em> porque: ${Q[idx].explanation}`;
+  }
+
+  updateProgress();
+  checkFinished();
+}
+
+function updateProgress() {
+  const answered = state.filter(s => s !== null).length;
+  const correct  = state.filter(s => s === 'correct').length;
+  const wrong    = state.filter(s => s === 'wrong').length;
+  const rest     = Q.length - answered;
+  const pct      = Q.length > 0 ? Math.round(answered / Q.length * 100) : 0;
+
+  document.getElementById('prog-text').textContent = `${answered} de ${Q.length} respondidas`;
+  document.getElementById('prog-pct').textContent  = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('cnt-c').textContent = correct;
+  document.getElementById('cnt-w').textContent = wrong;
+  document.getElementById('cnt-r').textContent = rest;
+}
+
+function checkFinished() {
+  const answered = state.filter(s => s !== null).length;
+  if (answered < Q.length) return;
+  setTimeout(showResult, 1200);
+}
+
+function showResult() {
+  const correct = state.filter(s => s === 'correct').length;
+  const wrong   = state.filter(s => s === 'wrong').length;
+  const pct     = Math.round(correct / Q.length * 100);
+
+  let emoji, msg;
+  if (pct === 100) { emoji='🏆'; msg='Perfeito! Você dominou todo o conteúdo!'; }
+  else if (pct >= 80) { emoji='🎉'; msg='Excelente desempenho! Continue assim!'; }
+  else if (pct >= 60) { emoji='👍'; msg='Bom resultado! Revise os temas com erros.'; }
+  else if (pct >= 40) { emoji='📚'; msg='Vale a pena rever o conteúdo com calma.'; }
+  else { emoji='💪'; msg='Não desanime! Estude mais e tente novamente.'; }
+
+  document.getElementById('res-emoji').textContent = emoji;
+  document.getElementById('res-pct').textContent   = pct + '%';
+  document.getElementById('res-msg').textContent   = msg;
+  document.getElementById('res-c').textContent     = correct;
+  document.getElementById('res-w').textContent     = wrong;
+  document.getElementById('res-t').textContent     = Q.length;
+  document.getElementById('result-screen').classList.add('show');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function resetQuiz() {
+  state.fill(null);
+  document.getElementById('result-screen').classList.remove('show');
+  currentFilter = 'all';
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.filter-btn').classList.add('active');
+  renderCards();
+  updateProgress();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  applyFilter(f);
+}
+
+function applyFilter(f) {
+  Q.forEach((q, i) => {
+    const card = document.getElementById(`card-${i}`);
+    if (!card) return;
+    let show = true;
+    if (f === 'unanswered') show = state[i] === null;
+    else if (f === 'correct') show = state[i] === 'correct';
+    else if (f === 'wrong')   show = state[i] === 'wrong';
+    card.style.display = show ? '' : 'none';
+  });
+}
+
+// FAB
+window.addEventListener('scroll', () => {
+  document.getElementById('fab').classList.toggle('visible', window.scrollY > 400);
+});
+
+init();
+</script>
+</body>
+</html>
